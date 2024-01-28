@@ -91,6 +91,8 @@ This script performs the following image processings.<br>
 2 Create 512x512 square images corresponding to the Hippocampus mask files 
 from the original img files in <b>Train/</b> folder
 </pre>
+The created <bHippocampus-base</b> dataset has the following folder structure.<br>
+
 <pre>
 ./Hippocampus-base
   └─train
@@ -98,12 +100,7 @@ from the original img files in <b>Train/</b> folder
       └─masks
 </pre>
 
-The created <bHippocampus-base</b> dataset has the following folder structure.<br>
-<pre>
-./Hippocampus-base
- ├─images
- └─masks
-</pre>
+
 
 <h3>
 3.2 Split base dataset to test, train and valid 

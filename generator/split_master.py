@@ -14,6 +14,7 @@
 #
 # split_master.py
 # 2024/01/28
+# 2024/02/20 Added random.seed(137)
 
 """
 ./Hippocampus-base/train
@@ -24,8 +25,7 @@
 # into test, train and valid dataset.
 
 """
-Hippocampus
-├─test
+../Hippocampus-ImageMask-Dataset/├─test
 │  ├─images
 │  └─masks
 ├─train
@@ -47,6 +47,9 @@ import random
 
 def split_master(images_dir, masks_dir, output_dir):
   image_files = glob.glob(images_dir + "/*.jpg")
+  # 2024/02/20
+  random.seed(137)
+
   random.shuffle(image_files)
   num = len(image_files)
   num_train = int(num * 0.7)

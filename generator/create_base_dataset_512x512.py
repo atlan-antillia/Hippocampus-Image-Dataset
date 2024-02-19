@@ -15,6 +15,7 @@
 
 # 2024/01/28 
 # create_base_dataset.py
+# 2024/02/20 Modified to call normalize in create_image_files function.
 
 import os
 import sys
@@ -36,11 +37,7 @@ print(scan.shape)
 (num, width, height)
 
 """
-
-
 # See : https://github.com/neheller/kits19/blob/master/starter_code/visualize.py
-
-
 
 H = 512
 W = 512
@@ -109,6 +106,14 @@ def create_mask_files(img_file, name, output_dir, index):
         num += 1
     return num
   
+def normalize(image):
+    min = np.min(image)/255.0
+    max = np.max(image)/255.0
+    scale = (max - min)
+    image = (image - min) / scale
+    image = image.astype('uint8') 
+    return image   
+
 def create_image_files(image_file, name, output_masks_dir, output_images_dir, index):
    
     img = nib.load(image_file)
@@ -125,7 +130,9 @@ def create_image_files(image_file, name, output_masks_dir, output_images_dir, in
  
     for i in range(num_images):
       img = data[:, :, i]
-      img = img.astype("uint8") 
+      #img = img.astype("uint8")
+      # 2024/02/20  
+      img = normalize(img)
 
       filename = str(index + i) + "_" + name + ".jpg"
 

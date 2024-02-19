@@ -1,5 +1,14 @@
-<h2>Hippocampus-Image-Dataset (2024/01/29)</h2>
+<h2>Hippocampus-Image-Dataset (Updated: 2024/02/20)</h2>
 This is a Hippocampus dataset for Image Segmentation.<br>  
+<br>
+<li>
+2024/02/20: Modified to call normalize in create_image_files function in <a href="./generator/create_base_dataset_512x512.py">
+create_base_dataset_512x512.py</a>.
+</li>
+<li>
+2024/02/20: Regenerated Hippocampus-ImageMask-Dataset and 
+<a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
+Hippocampus-ImageMask-Dataset.zip</a>.</i>
 <br>
 <h3>1. Dataset Citatioin</h3>
 
@@ -128,7 +137,7 @@ By using Python script <a href="./generator/split_master.py">split_master.py</a>
 <br>
 <br>
 
-You can download this dataset from the google drive 
+You can download the latest dataset from the google drive 
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
 Hippocampus-ImageMask-Dataset.zip</a>
 

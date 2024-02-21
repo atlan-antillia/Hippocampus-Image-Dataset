@@ -76,23 +76,34 @@ def get_mask_boundingbox( mask):
     return rect
 """
 
+class ImageMaskDatasetGenerator:
 
-def create_mask_files(img_file, name, output_dir, index):
+  def __init__(self, images_dir, labels_dir, output_images_dir, output_masks_dir):
+    self.images_dir = images_dir
+    self.labels_dir = labels_dir
+    self.output_images_dir = output_images_dir
+    self.output_masks_dir  = output_masks_dir
+   
+  def create_mask_files(self, img_file, name, output_dir, index):
     print("--- niigz {}".format(img_file))
     img = nib.load(img_file)
     
     data = img.get_fdata()
-    print("---data shape {} ".format(data.shape))
+    print("---create_mask_files data shape {} ".format(data.shape))
     shape = data.shape
     if len(shape) == 4:
       data = data.reshape((shape[0], shape[1], shape[2]))
-
-    num_images = data.shape[2] # math.floor(data.shape[2]/2)
+      #data = data.reshape((shape[0], shape[2], shape[1]))
+    print("--- data.shape {}".format(data.shape))
+    num_images = data.shape[1] 
     print("--- num_images {}".format(num_images))
+
     num = 0
   
     for i in range(num_images):
-      img = data[:, :, i]
+      #img = data[:, :, i]
+      img = data[:,i,:]
+
       #img = class_to_color(img, KIDNEY_COLOR, TUMOR_COLOR) 
       img = np.array(img)*255.0      
       img = img.astype("uint8") 
@@ -101,12 +112,13 @@ def create_mask_files(img_file, name, output_dir, index):
       if np.any(img > 0):
         filepath = os.path.join(output_dir, filename)
         image = cv2.resize(img, (W, H))
+        image = cv2.rotate(image,cv2.ROTATE_90_COUNTERCLOCKWISE)
         cv2.imwrite(filepath, image)
         print("Saved {}".format(filepath))
         num += 1
     return num
   
-def normalize(image):
+  def normalize(self, image):
     min = np.min(image)/255.0
     max = np.max(image)/255.0
     scale = (max - min)
@@ -114,25 +126,30 @@ def normalize(image):
     image = image.astype('uint8') 
     return image   
 
-def create_image_files(image_file, name, output_masks_dir, output_images_dir, index):
+  def create_image_files(self, image_file, name, output_masks_dir, output_images_dir, index):
    
     img = nib.load(image_file)
 
     data = img.get_fdata()
-    print("---data shape {} ".format(data.shape))
+    print("---create_image_files data shape {} ".format(data.shape))
+    print("--- shape {}".format(data.shape))
     shape = data.shape
+  
     if len(shape) == 4:
       data = data.reshape((shape[0], shape[1], shape[2]))
+      #data = data.reshape((shape[0], shape[2], shape[1]))
 
-    num_images = data.shape[2] # math.floor(data.shape[2]/2)
+    num_images = data.shape[1] # 
     print("--- num_images {}".format(num_images))
     num = 0
  
     for i in range(num_images):
-      img = data[:, :, i]
+      #img = data[:, :, i]
+      img = data[:,i,:,]
+      
       #img = img.astype("uint8")
       # 2024/02/20  
-      img = normalize(img)
+      img = self.normalize(img)
 
       filename = str(index + i) + "_" + name + ".jpg"
 
@@ -140,32 +157,34 @@ def create_image_files(image_file, name, output_masks_dir, output_images_dir, in
       if os.path.exists(mask_filepath):
         filepath = os.path.join(output_images_dir, filename)
         image = cv2.resize(img, (W, H))
-   
+        image = cv2.rotate(image,cv2.ROTATE_90_COUNTERCLOCKWISE)
+ 
         cv2.imwrite(filepath, image)
         print("Saved {}".format(filepath))
         num += 1
     return num
   
 
-def create_base_dataset(images_dir, labels_dir, output_images_dir, output_masks_dir):
+  def generate(self):
 
-    image_files = glob.glob(images_dir + "/*.img")
+    image_files = glob.glob(self.images_dir + "/*.img")
     index = 10000
 
     for image_file in image_files:
-        basename = os.path.basename(image_file)
-        name     = basename.split(".")[0]
-        img_name     = basename.split(".")[0]
-        mask_name    = img_name + "_Hipp_Labels.img"
-        mask_file = os.path.join(labels_dir, mask_name)
+        basename  = os.path.basename(image_file)
+        name      = basename.split(".")[0]
+        img_name  = basename.split(".")[0]
+        mask_name = img_name + "_Hipp_Labels.img"
+        mask_file = os.path.join(self.labels_dir, mask_name)
         print("---image file {}".format(image_file))
 
         print("---mask file {}".format(mask_file))
         
         # 1 create mask files at first. 
-        num_masks  = create_mask_files(mask_file,   name, output_masks_dir,  index)
+        num_masks  = self.create_mask_files(mask_file,   name, self.output_masks_dir,  index)
         # 2 create image files if mask files exist.
-        num_images = create_image_files(image_file, name, output_masks_dir, output_images_dir, index)
+        num_images = self.create_image_files(image_file, name, self.output_masks_dir, 
+                                             self.output_images_dir, index)
         print(" num_images: {}  num_masks: {}".format(num_images, num_masks))
 
 
@@ -173,8 +192,8 @@ if __name__ == "__main__":
   try:
     images_dir        = "./Train"
     labels_dir        = "./Train/Labels"
-    output_images_dir = "./Hippocampus-base/train/images/"
-    output_masks_dir  = "./Hippocampus-base/train/masks/"
+    output_images_dir = "./Hippocampus-master/train/images/"
+    output_masks_dir  = "./Hippocampus-master/train/masks/"
 
     if os.path.exists(output_images_dir):
       shutil.rmtree(output_images_dir)
@@ -187,7 +206,11 @@ if __name__ == "__main__":
       os.makedirs(output_masks_dir)
 
     # Create jpg image and mask files from nii.gz files under data_dir.
-    create_base_dataset(images_dir, labels_dir, output_images_dir, output_masks_dir)
+
+    generator = ImageMaskDatasetGenerator(images_dir, labels_dir, 
+                                          output_images_dir, output_masks_dir)
+    generator.generate()
+
 
   except:
     traceback.print_exc()

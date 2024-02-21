@@ -1,4 +1,4 @@
-<h2>Hippocampus-Image-Dataset (Updated: 2024/02/20)</h2>
+<h2>Hippocampus-Image-Dataset (Updated: 2024/02/21)</h2>
 This is a Hippocampus dataset for Image Segmentation.<br>  
 <br>
 <li>
@@ -10,6 +10,16 @@ create_base_dataset_512x512.py</a>.
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
 Hippocampus-ImageMask-Dataset.zip</a>.</i>
 <br>
+<li>
+
+2024/02/21: Fixed a bug to extract the images and mask from the img files, and modified to rotate them by
+90 degrees to ROTATE_90_COUNTERCLOCKWISE.</i>
+
+2024/02/21: Regenerated Hippocampus-ImageMask-Dataset and 
+<a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
+Hippocampus-ImageMask-Dataset.zip</a>.</i>
+<br>
+
 <h3>1. Dataset Citatioin</h3>
 
 The image dataset used here has been taken from the following kaggle web site.<br>
@@ -88,10 +98,10 @@ Please note that we use <b>Train</b> dataset only, because <b>Test</b> dataset c
 <h3>
 3.1 Create base dataset
 </h3>
-Please run Python script <a href="./generator/create_base_dataset_512x512.py">create_base_dataset_512x512.py</a>.
+Please run Python script <a href="./generator/ImageMaskDatasetGenerator.py">ImageMaskDatasetGenerator.py</a>.
 to create jpg image and mask files.<br>
 <pre>
->python create_base_dataset_512x512.py
+>python ImageMaskDatasetGenerator.py
 </pre>
 This script performs the following image processings.<br>
 <pre>
@@ -100,10 +110,10 @@ This script performs the following image processings.<br>
 2 Create 512x512 square images corresponding to the Hippocampus mask files 
 from the original img files in <b>Train/</b> folder
 </pre>
-The created <bHippocampus-base</b> dataset has the following folder structure.<br>
+The created <bHippocampus-master</b> dataset has the following folder structure.<br>
 
 <pre>
-./Hippocampus-base
+./Hippocampus-master
   └─train
       ├─images
       └─masks
@@ -137,7 +147,7 @@ By using Python script <a href="./generator/split_master.py">split_master.py</a>
 <br>
 <br>
 
-You can download the latest dataset from the google drive 
+You can download the latest modified dataset from the google drive 
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
-Hippocampus-ImageMask-Dataset.zip</a>
+Hippocampus-ImageMask-Dataset.zip</a> (2024/02/21)
 

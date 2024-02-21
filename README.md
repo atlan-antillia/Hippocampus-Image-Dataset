@@ -5,19 +5,18 @@ This is a Hippocampus dataset for Image Segmentation.<br>
 2024/02/20: Modified to call normalize in create_image_files function in <a href="./generator/create_base_dataset_512x512.py">
 create_base_dataset_512x512.py</a>.
 </li>
-<li>
-2024/02/20: Regenerated Hippocampus-ImageMask-Dataset and 
+<li>2024/02/20: Regenerated Hippocampus-ImageMask-Dataset and 
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
 Hippocampus-ImageMask-Dataset.zip</a>.</i>
-<br>
+</li>
 <li>
-
 2024/02/21: Fixed a bug to extract the images and mask from the img files, and modified to rotate them by
 90 degrees to ROTATE_90_COUNTERCLOCKWISE.</i>
 
+<li>
 2024/02/21: Regenerated Hippocampus-ImageMask-Dataset and 
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
-Hippocampus-ImageMask-Dataset.zip</a>.</i>
+Hippocampus-ImageMask-Dataset.zip</a>.</li>
 <br>
 
 <h3>1. Dataset Citatioin</h3>

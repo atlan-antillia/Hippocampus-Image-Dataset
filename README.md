@@ -16,7 +16,13 @@ Hippocampus-ImageMask-Dataset.zip</a>.</i>
 <li>
 2024/02/21: Regenerated Hippocampus-ImageMask-Dataset and 
 <a href="https://drive.google.com/file/d/1FAgeAlwvzCscZVvAovqpsTQdum90_7y-/view?usp=sharing">
-Hippocampus-ImageMask-Dataset.zip</a>.</li>
+Hippocampus-ImageMask-Dataset.zip</a>.
+</li>
+
+<li>
+2024/02/22: Updated <a href="./generator/ImageMaskDatasetGenerator.py">ImageMaskDatasetGenerator.py</a>
+</li>.
+
 <br>
 
 <h3>1. Dataset Citatioin</h3>

@@ -15,13 +15,12 @@
 
 # 2024/01/28 
 # create_base_dataset.py
-# 2024/02/20 Modified to call normalize in create_image_files function.
-
+# 2024/02/22 Modified to call normalize in create_image_files function.
+# 2024/02/22 Modified to use PIL.Image instead of cv2.
 import os
 import sys
 import shutil
-import cv2
-
+from PIL import Image
 import glob
 import numpy as np
 import math
@@ -39,43 +38,6 @@ print(scan.shape)
 """
 # See : https://github.com/neheller/kits19/blob/master/starter_code/visualize.py
 
-H = 512
-W = 512
-
-# This function has been taken from visualize.py
-# https://github.com/neheller/kits19/blob/master/starter_code/visualize.py
-#
-def class_to_color(segmentation, kidney_color, tumor_color, tumor_only=True):
-    # initialize output to zeros
-    shp = segmentation.shape
-    seg_color = np.zeros((shp[0], shp[1], 3), dtype=np.float32)
-
-    # set output to appropriate color at each location
-    # 2023/08/10 antillia.com
-    if tumor_only:
-      # Set a kidney mask color to be black 
-      kidney_color = [0, 0, 0]
-    seg_color[np.equal(segmentation, 1)] = kidney_color
-    seg_color[np.equal(segmentation, 2)] = tumor_color
-    return seg_color
-  
-"""
-def get_mask_boundingbox( mask):
-    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-
-    ret, bin_img = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY)
-
-    contours, hierarchy = cv2.findContours(
-       bin_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    #contours = list(filter(lambda x: cv2.contourArea(x) > 100, contours))
-    points = np.array(contours[0])
-    #print(points)
-    x, y, w, h = cv2.boundingRect(points)
-    rect = (x, y, w, h)
-    return rect
-"""
-
 class ImageMaskDatasetGenerator:
 
   def __init__(self, images_dir, labels_dir, output_images_dir, output_masks_dir):
@@ -83,7 +45,9 @@ class ImageMaskDatasetGenerator:
     self.labels_dir = labels_dir
     self.output_images_dir = output_images_dir
     self.output_masks_dir  = output_masks_dir
-   
+    self.angle     = 90
+    self.RESIZE    = (512, 512)
+       
   def create_mask_files(self, img_file, name, output_dir, index):
     print("--- niigz {}".format(img_file))
     img = nib.load(img_file)
@@ -93,27 +57,23 @@ class ImageMaskDatasetGenerator:
     shape = data.shape
     if len(shape) == 4:
       data = data.reshape((shape[0], shape[1], shape[2]))
-      #data = data.reshape((shape[0], shape[2], shape[1]))
     print("--- data.shape {}".format(data.shape))
     num_images = data.shape[1] 
     print("--- num_images {}".format(num_images))
-
-    num = 0
-  
+    num = 0  
     for i in range(num_images):
-      #img = data[:, :, i]
       img = data[:,i,:]
-
-      #img = class_to_color(img, KIDNEY_COLOR, TUMOR_COLOR) 
       img = np.array(img)*255.0      
       img = img.astype("uint8") 
-
       filename = str(index + i) + "_" + name + ".jpg"
+      filepath = os.path.join(output_dir, filename)
       if np.any(img > 0):
-        filepath = os.path.join(output_dir, filename)
-        image = cv2.resize(img, (W, H))
-        image = cv2.rotate(image,cv2.ROTATE_90_COUNTERCLOCKWISE)
-        cv2.imwrite(filepath, image)
+        img = Image.fromarray(img)
+        img = img.convert("RGB")
+        img = img.resize(self.RESIZE)
+        if self.angle > 0:
+          img = img.rotate(self.angle)
+        img.save(filepath)
         print("Saved {}".format(filepath))
         num += 1
     return num
@@ -127,7 +87,6 @@ class ImageMaskDatasetGenerator:
     return image   
 
   def create_image_files(self, image_file, name, output_masks_dir, output_images_dir, index):
-   
     img = nib.load(image_file)
 
     data = img.get_fdata()
@@ -137,29 +96,26 @@ class ImageMaskDatasetGenerator:
   
     if len(shape) == 4:
       data = data.reshape((shape[0], shape[1], shape[2]))
-      #data = data.reshape((shape[0], shape[2], shape[1]))
 
     num_images = data.shape[1] # 
     print("--- num_images {}".format(num_images))
     num = 0
- 
     for i in range(num_images):
-      #img = data[:, :, i]
       img = data[:,i,:,]
       
-      #img = img.astype("uint8")
-      # 2024/02/20  
-      img = self.normalize(img)
-
       filename = str(index + i) + "_" + name + ".jpg"
-
+      filepath = os.path.join(output_images_dir, filename)
       mask_filepath = os.path.join(output_masks_dir, filename)
+      
       if os.path.exists(mask_filepath):
-        filepath = os.path.join(output_images_dir, filename)
-        image = cv2.resize(img, (W, H))
-        image = cv2.rotate(image,cv2.ROTATE_90_COUNTERCLOCKWISE)
- 
-        cv2.imwrite(filepath, image)
+        # 2024/02/20  
+        img = self.normalize(img)
+        img = Image.fromarray(img)
+        img = img.convert("RGB")
+        img = img.resize(self.RESIZE)
+        if self.angle>0:
+          img = img.rotate(self.angle)
+        img.save(filepath)
         print("Saved {}".format(filepath))
         num += 1
     return num
@@ -205,12 +161,10 @@ if __name__ == "__main__":
     if not os.path.exists(output_masks_dir):
       os.makedirs(output_masks_dir)
 
-    # Create jpg image and mask files from nii.gz files under data_dir.
-
+    # Create jpg image and mask files from nii.gz files under data_dir.                                           
     generator = ImageMaskDatasetGenerator(images_dir, labels_dir, 
                                           output_images_dir, output_masks_dir)
     generator.generate()
-
 
   except:
     traceback.print_exc()
